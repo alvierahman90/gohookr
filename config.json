@@ -1,0 +1,9 @@
+{
+  "Services": {
+    "test": {
+      "Script": "./example.sh",
+      "Secret": "THISISVERYSECRET",
+      "SignatureHeader": "X-Gitea-Signature"
+    }
+  }
+}
