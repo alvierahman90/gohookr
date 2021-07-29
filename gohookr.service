@@ -3,6 +3,8 @@ Description=A really simple webhook receiver.
 After=network.target
 
 [Service]
+Restart=on-failure
+RestartSec=5s
 ExecStart=/usr/local/bin/gohookr
 
 [Install]
