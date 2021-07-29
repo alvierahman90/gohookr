@@ -4,3 +4,6 @@ After=network.target
 
 [Service]
 ExecStart=/usr/local/bin/gohookr
+
+[Install]
+WantedBy=multi-user.target
