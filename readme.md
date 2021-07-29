@@ -9,6 +9,17 @@ Default config path is `/etc/gohookr.conf` and can be overriden by setting envir
 
 Check below for an example configuration.
 
+## Installation
+
+After you [install go](https://golang.org/doc/install):
+
+```
+go mod tidy
+go build
+cp gohookr /usr/local/bin/
+cp gohookr.service /usr/lib/systemd/system/
+```
+
 ## Signature Verification
 
 Signature verificaiton is done using SHA256 HMACs.

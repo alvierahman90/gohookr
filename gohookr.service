@@ -1,0 +1,6 @@
+[Unit]
+Description=A really simple webhook receiver.
+After=network.target
+
+[Service]
+ExecStart=/service/alvps/gohookr
