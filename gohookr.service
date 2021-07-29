@@ -3,4 +3,4 @@ Description=A really simple webhook receiver.
 After=network.target
 
 [Service]
-ExecStart=/service/alvps/gohookr
+ExecStart=/usr/local/bin/gohookr
