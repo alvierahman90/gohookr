@@ -16,12 +16,12 @@ import (
 	"github.com/gorilla/mux"
 )
 
-var config_filename = "/etc/ghookr.json"
+var config_filename = "/etc/gohookr.json"
 var noSignatureCheck = false
 
 func main() {
 	r := mux.NewRouter()
-	r.HandleFunc("/webhook/{service}", webhook)
+	r.HandleFunc("/webhooks/{service}", webhookHandler)
 
 	port := ":80"
 	if p, ok := os.LookupEnv("PORT"); ok {
@@ -39,7 +39,7 @@ func main() {
 	log.Fatal(http.ListenAndServe(port, r))
 }
 
-func webhook(w http.ResponseWriter, r *http.Request) {
+func webhookHandler(w http.ResponseWriter, r *http.Request) {
 	payload := ""
 	if p, err := ioutil.ReadAll(r.Body); err != nil {
 		writeResponse(w, 500, "Internal Server Error: Could not read payload")
@@ -56,7 +56,7 @@ func webhook(w http.ResponseWriter, r *http.Request) {
 	config := Config{}
 	json.Unmarshal(raw_config, &config)
 
-	// check what service is specified in URL (/webhook/{service}) and if it exists
+	// check what service is specified in URL (/webhooks/{service}) and if it exists
 	service, ok := config.Services[string(mux.Vars(r)["service"])]
 	if !ok {
 		writeResponse(w, 404, "Service Not Found")

@@ -1,10 +1,13 @@
 # gohookr
 
-A _really_ simple webhook receiver.
+A _really_ simple webhook receiver, which listens at `0.0.0.0:<port>/webhooks/<webhook-name>`.
 
-Check config.json for an example configuration.
+Default port is 80 and can be overriden by setting the environment variable `PORT`.
 
-Default config path is `/etc/ghookr.conf`, can be overriden with `CONFIG` environment variable.
+Default config path is `/etc/gohookr.conf` and can be overriden by setting environment variable
+`CONFIG`.
+
+Check below for an example configuration.
 
 ## Signature Verification
 
@@ -15,8 +18,8 @@ You should also specify a shared secret in the `Secret` key.
 
 ### Disable Signature Verification
 
-You can disable signature verification altogether by setting environment variable `NO_SIGNATURE_VERIFICATION`
-to `true`.
+You can disable signature verification altogether by setting environment variable
+`NO_SIGNATURE_VERIFICATION` to `true`.
 
 ## Tests
 
@@ -26,7 +29,7 @@ A non-zero return code is considered a fail and gohookr will run no further test
 deploy.
 
 Tests are run in the order they're listed so any actions that need to be done before
-tests are run can simply be put before the tests.
+real tests are run can simply be put before the tests.
 
 ## Example Config
 
