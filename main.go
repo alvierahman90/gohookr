@@ -17,6 +17,7 @@ import (
 )
 
 var config_filename = "/etc/ghookr.json"
+var noSignatureCheck = false
 
 func main() {
 	// Used for testing purposes... generates hmac string
@@ -39,6 +40,10 @@ func main() {
 
 	if p, ok := os.LookupEnv("CONFIG"); ok {
 		config_filename = p
+	}
+
+	if p, ok := os.LookupEnv("NO_SIGNATURE_CHECK"); ok {
+		noSignatureCheck = p == "true"
 	}
 
 	log.Fatal(http.ListenAndServe(port, r))
@@ -73,8 +78,10 @@ func webhook(w http.ResponseWriter, r *http.Request) {
 		service = val
 	}
 
+	// Verify that signature provided matches signature calculated using secretsss
 	signature := r.Header.Get(service.SignatureHeader)
-	if signature == getSha256HMACSignature([]byte(service.Secret), payload) {
+	calculatedSignature := getSha256HMACSignature([]byte(service.Secret), payload)
+	if noSignatureCheck || signature == calculatedSignature {
 		writeResponse(w, 400, "Bad Request: Signatures do not match")
 		return
 	}
