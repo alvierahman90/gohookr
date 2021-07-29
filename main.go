@@ -71,6 +71,16 @@ func webhook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Run tests, immediately stop if one fails
+	for _, test := range service.Tests {
+		if _, err := exec.Command(test[0], test[1:]...).Output(); err != nil {
+			writeResponse(w, 409,
+				fmt.Sprintf("409 Conflict: Test failed: %v", err.Error()),
+			)
+			return
+		}
+	}
+
 	if stdout, err := exec.Command(service.Script, payload).Output(); err != nil {
 		writeResponse(w, 500, err.Error())
 		return
@@ -96,7 +106,7 @@ type Service struct {
 	Script          string
 	Secret          string
 	SignatureHeader string
-	Tests           []string
+	Tests           [][]string
 }
 
 type Config struct {
