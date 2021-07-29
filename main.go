@@ -17,7 +17,7 @@ import (
 )
 
 var config_filename = "/etc/gohookr.json"
-var noSignatureCheck = false
+var checkSignature = true
 
 func main() {
 	r := mux.NewRouter()
@@ -33,7 +33,7 @@ func main() {
 	}
 
 	if p, ok := os.LookupEnv("NO_SIGNATURE_CHECK"); ok {
-		noSignatureCheck = p == "true"
+		checkSignature = p != "true"
 	}
 
 	log.Fatal(http.ListenAndServe(port, r))
@@ -66,7 +66,9 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 	// Verify that signature provided matches signature calculated using secretsss
 	signature := r.Header.Get(service.SignatureHeader)
 	calculatedSignature := getSha256HMACSignature([]byte(service.Secret), payload)
-	if noSignatureCheck || signature == calculatedSignature {
+	fmt.Printf("signature = %v\n", signature)
+	fmt.Printf("calcuatedSignature = %v\n", signature)
+	if signature != calculatedSignature  && checkSignature{
 		writeResponse(w, 400, "Bad Request: Signatures do not match")
 		return
 	}
