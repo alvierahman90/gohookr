@@ -73,7 +73,7 @@ func webhook(w http.ResponseWriter, r *http.Request) {
 
 	// Run tests, immediately stop if one fails
 	for _, test := range service.Tests {
-		if _, err := exec.Command(test[0], test[1:]...).Output(); err != nil {
+		if _, err := exec.Command(test.Command, test.Arguments...).Output(); err != nil {
 			writeResponse(w, 409,
 				fmt.Sprintf("409 Conflict: Test failed: %v", err.Error()),
 			)
@@ -101,12 +101,17 @@ func getSha256HMACSignature(secret []byte, data string) string {
 	return hex.EncodeToString(h.Sum(nil))
 }
 
+type Test struct {
+	Command string
+	Arguments []string
+}
+
 type Service struct {
 	Gitea           bool
 	Script          string
 	Secret          string
 	SignatureHeader string
-	Tests           [][]string
+	Tests           []Test
 }
 
 type Config struct {

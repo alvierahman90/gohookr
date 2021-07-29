@@ -3,7 +3,13 @@
     "test": {
       "Script": "./example.sh",
       "Secret": "THISISVERYSECRET",
-      "SignatureHeader": "X-Gitea-Signature"
+      "SignatureHeader": "X-Gitea-Signature",
+      "Tests": [
+        {
+          "Command": "git",
+          "Arguments": [ "pull" ]
+        }
+      ]
     }
   }
 }
