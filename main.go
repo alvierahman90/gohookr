@@ -40,10 +40,6 @@ func main() {
 }
 
 func webhook(w http.ResponseWriter, r *http.Request) {
-	// TODO run any specified tests before running script
-
-	service_name := mux.Vars(r)["service"]
-
 	payload := ""
 	if p, err := ioutil.ReadAll(r.Body); err != nil {
 		writeResponse(w, 500, "Internal Server Error: Could not read payload")
@@ -60,12 +56,11 @@ func webhook(w http.ResponseWriter, r *http.Request) {
 	config := Config{}
 	json.Unmarshal(raw_config, &config)
 
-	var service = Service{}
-	if val, ok := config.Services[string(service_name)]; !ok {
+	// check what service is specified in URL (/webhook/{service}) and if it exists
+	service, ok := config.Services[string(mux.Vars(r)["service"])]
+	if !ok {
 		writeResponse(w, 404, "Service Not Found")
 		return
-	} else {
-		service = val
 	}
 
 	// Verify that signature provided matches signature calculated using secretsss
