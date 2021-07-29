@@ -20,16 +20,6 @@ var config_filename = "/etc/ghookr.json"
 var noSignatureCheck = false
 
 func main() {
-	// Used for testing purposes... generates hmac string
-	if os.Getenv("HMACGEN") == "true" {
-		input, err := ioutil.ReadAll(os.Stdin)
-		secret := os.Getenv("SECRET")
-		if err != nil {
-			panic(err.Error())
-		}
-		fmt.Println(getSha256HMACSignature([]byte(secret), string(input)))
-		return
-	}
 	r := mux.NewRouter()
 	r.HandleFunc("/webhook/{service}", webhook)
 
