@@ -9,9 +9,9 @@ Default config path is `/etc/ghookr.conf`, can be overriden with `CONFIG` enviro
 ## Signature Verification
 
 Signature verificaiton is done using SHA256 HMACs.
-You can set which header gohookr will receive a signature from using the `SignatureHeader` key for
-each service.
-You can also specify a shared secret in the `Secret` key.
+You **must** set which HTTP header gohookr will receive a signature from using the `SignatureHeader`
+key for each service.
+You should also specify a shared secret in the `Secret` key.
 
 ### Disable Signature Verification
 
@@ -27,3 +27,25 @@ deploy.
 
 Tests are run in the order they're listed so any actions that need to be done before
 tests are run can simply be put before the tests.
+
+## Example Config
+
+An example config file can be found [here](./config.json) but also below:
+
+```json
+{
+  "Services": {
+    "test": {
+      "Script": "./example.sh",
+      "Secret": "THISISVERYSECRET",
+      "SignatureHeader": "X-Gitea-Signature",
+      "Tests": [
+        {
+          "Command": "git",
+          "Arguments": [ "pull" ]
+        }
+      ]
+    }
+  }
+}
+```
