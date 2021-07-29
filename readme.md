@@ -18,6 +18,8 @@ go mod tidy
 go build
 cp gohookr /usr/local/bin/
 cp gohookr.service /usr/lib/systemd/system/
+systemctl daemon-reload
+systemctl enable --now gohookr
 ```
 
 ## Signature Verification
