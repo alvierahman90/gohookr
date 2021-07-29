@@ -1,8 +1,6 @@
 # gohookr
 
-A _really_ simple webhook receiver, which listens at `0.0.0.0:<port>/webhooks/<webhook-name>`.
-
-Default port is 80 and can be overriden by setting the environment variable `PORT`.
+A _really_ simple webhook receiver, which listens at `/webhooks/<webhook-name>`.
 
 Default config path is `/etc/gohookr.conf` and can be overriden by setting environment variable
 `CONFIG`.
@@ -46,10 +44,15 @@ real tests are run can simply be put before the tests.
 
 ## Example Config
 
+Required config keys are `ListenAddress` and `Services`.
+
+Requried keys per service are `Script`, `Secret`, `SignatureHeader`.
+
 An example config file can be found [here](./config.json) but also below:
 
 ```json
 {
+  "ListenAddress": "127.0.0.1:8654",
   "Services": {
     "test": {
       "Script": "./example.sh",

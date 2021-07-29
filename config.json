@@ -1,4 +1,5 @@
 {
+  "ListenAddress": "127.0.0.1:8654",
   "Services": {
     "test": {
       "Script": "./example.sh",

@@ -18,14 +18,20 @@ import (
 
 var config_filename = "/etc/gohookr.json"
 var checkSignature = true
+var config Config
 
 func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/webhooks/{service}", webhookHandler)
 
-	port := ":80"
-	if p, ok := os.LookupEnv("PORT"); ok {
-		port = fmt.Sprintf(":%v", p)
+	raw_config, err := ioutil.ReadFile(config_filename)
+	if err != nil {
+		panic(err.Error())
+	}
+	config = Config{}
+	json.Unmarshal(raw_config, &config)
+	if err := config.Validate(); err != nil {
+		panic(err.Error())
 	}
 
 	if p, ok := os.LookupEnv("CONFIG"); ok {
@@ -36,7 +42,7 @@ func main() {
 		checkSignature = p != "true"
 	}
 
-	log.Fatal(http.ListenAndServe(port, r))
+	log.Fatal(http.ListenAndServe(config.ListenAddress, r))
 }
 
 func webhookHandler(w http.ResponseWriter, r *http.Request) {
@@ -47,14 +53,6 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		payload = string(p)
 	}
-
-	raw_config, err := ioutil.ReadFile(config_filename)
-	if err != nil {
-		writeResponse(w, 500, "Internal Server Error: Could not open config file")
-		return
-	}
-	config := Config{}
-	json.Unmarshal(raw_config, &config)
 
 	// check what service is specified in URL (/webhooks/{service}) and if it exists
 	service, ok := config.Services[string(mux.Vars(r)["service"])]
@@ -68,7 +66,7 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 	calculatedSignature := getSha256HMACSignature([]byte(service.Secret), payload)
 	fmt.Printf("signature = %v\n", signature)
 	fmt.Printf("calcuatedSignature = %v\n", signature)
-	if signature != calculatedSignature  && checkSignature{
+	if signature != calculatedSignature && checkSignature {
 		writeResponse(w, 400, "Bad Request: Signatures do not match")
 		return
 	}
@@ -103,13 +101,32 @@ func getSha256HMACSignature(secret []byte, data string) string {
 	return hex.EncodeToString(h.Sum(nil))
 }
 
+func (c Config) Validate() error {
+	if c.ListenAddress == "" {
+		return requiredFieldError{"ListenAddress", ""}
+	}
+
+	for serviceName, service := range c.Services {
+		if service.Script == "" {
+			return requiredFieldError{"Script", serviceName}
+		}
+		if service.SignatureHeader == "" {
+			return requiredFieldError{"SignatureHeader", serviceName}
+		}
+		if service.Secret == "" {
+			return requiredFieldError{"Secret", serviceName}
+		}
+	}
+
+	return nil
+}
+
 type Test struct {
-	Command string
+	Command   string
 	Arguments []string
 }
 
 type Service struct {
-	Gitea           bool
 	Script          string
 	Secret          string
 	SignatureHeader string
@@ -117,5 +134,15 @@ type Service struct {
 }
 
 type Config struct {
-	Services map[string]Service
+	ListenAddress string
+	Services      map[string]Service
+}
+
+type requiredFieldError struct {
+	fieldName   string
+	serviceName string
+}
+
+func (e requiredFieldError) Error() string {
+	return fmt.Sprintf("%v cannot be empty (%v)", e.fieldName, e.serviceName)
 }
