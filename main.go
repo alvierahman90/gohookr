@@ -63,9 +63,13 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Verify that signature provided matches signature calculated using secretsss
 	signature := r.Header.Get(service.SignatureHeader)
-	calculatedSignature := fmt.Sprintf("%v%v", service.SignaturePrefix, getSha256HMACSignature([]byte(service.Secret), payload))
-	fmt.Printf("signature = %v\n", signature)
-	fmt.Printf("calcuatedSignature = %v\n", signature)
+	calculatedSignature := fmt.Sprintf(
+		"%v%v",
+		service.SignaturePrefix,
+		getSha256HMACSignature([]byte(service.Secret), payload),
+	)
+	fmt.Printf("signature          = %v\n", signature)
+	fmt.Printf("calcuatedSignature = %v\n", calculatedSignature)
 	if signature != calculatedSignature && checkSignature {
 		writeResponse(w, 400, "Bad Request: Signatures do not match")
 		return
