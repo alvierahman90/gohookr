@@ -87,7 +87,7 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		stdout, err := service.Script.Execute(payload)
-		fmt.Println(stdout)
+		fmt.Println(string(stdout))
 		if err != nil {
 			fmt.Println(err.Error())
 		}
