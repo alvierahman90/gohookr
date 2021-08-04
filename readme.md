@@ -12,12 +12,7 @@ Check below for an example configuration.
 After you [install go](https://golang.org/doc/install):
 
 ```
-go mod tidy
-go build
-cp gohookr /usr/local/bin/
-cp gohookr.service /usr/lib/systemd/system/
-systemctl daemon-reload
-systemctl enable --now gohookr
+make
 ```
 
 ## Signature Verification
