@@ -75,23 +75,26 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Run tests, immediately stop if one fails
-	for _, test := range service.Tests {
-		if _, err := test.Execute(payload); err != nil {
-			writeResponse(w, 409,
-				fmt.Sprintf("Conflict: Test failed: %v", err.Error()),
-			)
-			return
+	// run test and script in parralel to prevent timing out
+	go func(){
+		// Run tests, immediately stop if one fails
+		for _, test := range service.Tests {
+			if _, err := test.Execute(payload); err != nil {
+				writeResponse(w, 409,
+					fmt.Sprintf("Conflict: Test failed: %v", err.Error()),
+				)
+				return
+			}
 		}
-	}
+		stdout, err := service.Script.Execute(payload)
+		fmt.Println(stdout)
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+	}()
 
-	if stdout, err := service.Script.Execute(payload); err != nil {
-		writeResponse(w, 500, err.Error())
-		return
-	} else {
-		writeResponse(w, 200, string(stdout))
-		return
-	}
+	writeResponse(w, 200, "OK")
+	return
 }
 
 func writeResponse(w http.ResponseWriter, responseCode int, responseString string) {
