@@ -11,14 +11,14 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"os/exec"
 
+	"git.alra.uk/alvierahman90/gohookr/config"
 	"github.com/gorilla/mux"
 )
 
 var config_filename = "/etc/gohookr.json"
 var checkSignature = true
-var config Config
+var c config.Config
 
 func main() {
 	r := mux.NewRouter()
@@ -36,14 +36,13 @@ func main() {
 	if err != nil {
 		panic(err.Error())
 	}
-	config = Config{}
-	json.Unmarshal(raw_config, &config)
-	if err := config.Validate(); err != nil {
+
+	json.Unmarshal(raw_config, &c)
+	if err := c.Validate(); err != nil {
 		panic(err.Error())
 	}
 
-
-	log.Fatal(http.ListenAndServe(config.ListenAddress, r))
+	log.Fatal(http.ListenAndServe(c.ListenAddress, r))
 }
 
 func webhookHandler(w http.ResponseWriter, r *http.Request) {
@@ -56,7 +55,7 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// check what service is specified in URL (/webhooks/{service}) and if it exists
-	service, ok := config.Services[string(mux.Vars(r)["service"])]
+	service, ok := c.Services[string(mux.Vars(r)["service"])]
 	if !ok {
 		writeResponse(w, 404, "Service Not Found")
 		return
@@ -100,64 +99,4 @@ func getSha256HMACSignature(secret []byte, data string) string {
 	h := hmac.New(sha256.New, secret)
 	io.WriteString(h, data)
 	return hex.EncodeToString(h.Sum(nil))
-}
-
-func (c Config) Validate() error {
-	if c.ListenAddress == "" {
-		return requiredFieldError{"ListenAddress", ""}
-	}
-
-	jsonbytes, _ := json.MarshalIndent(c, "", "  ")
-	fmt.Println(string(jsonbytes))
-
-	for serviceName, service := range c.Services {
-		if service.Script.Program == "" {
-			return requiredFieldError{"Script.Program", serviceName}
-		}
-		if service.SignatureHeader == "" {
-			return requiredFieldError{"SignatureHeader", serviceName}
-		}
-		if service.Secret == "" {
-			return requiredFieldError{"Secret", serviceName}
-		}
-	}
-
-	return nil
-}
-
-func (c Command) Execute(payload string) ([]byte, error) {
-	arguments := make([]string, 0)
-	copy(c.Arguments, arguments)
-	if c.AppendPayload {
-		arguments = append(arguments, payload)
-	}
-
-	return exec.Command(c.Program, arguments...).Output()
-}
-
-type Command struct {
-	Program       string
-	Arguments     []string
-	AppendPayload bool
-}
-
-type Service struct {
-	Script          Command
-	Secret          string
-	SignatureHeader string
-	Tests           []Command
-}
-
-type Config struct {
-	ListenAddress string
-	Services      map[string]Service
-}
-
-type requiredFieldError struct {
-	fieldName   string
-	serviceName string
-}
-
-func (e requiredFieldError) Error() string {
-	return fmt.Sprintf("%v cannot be empty (%v)", e.fieldName, e.serviceName)
 }
