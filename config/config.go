@@ -10,6 +10,7 @@ type Config struct {
 	Services      map[string]struct {
 		Script          Command
 		Secret          string
+		SignaturePrefix string
 		SignatureHeader string
 		Tests           []Command
 	}

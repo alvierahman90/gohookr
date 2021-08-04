@@ -22,6 +22,9 @@ You **must** set which HTTP header gohookr will receive a signature from using t
 key for each service.
 You should also specify a shared secret in the `Secret` key.
 
+You may also need to specify a `SignaturePrefix`.
+For GitHub it would be `sha256=`.
+
 ### Disable Signature Verification
 
 You can disable signature verification altogether by setting environment variable
@@ -61,7 +64,8 @@ An example config file can be found [here](./config.json) but also below:
           "AppendPayload": true
       },
       "Secret": "THISISVERYSECRET",
-      "SignatureHeader": "X-Gitea-Signature",
+      "SignatureHeader": "X-Hub-Signature",
+      "SignaturePrefix": "sha256=",
       "Tests": [
         {
           "Program": "echo",
