@@ -2,13 +2,16 @@
   "ListenAddress": "127.0.0.1:8654",
   "Services": {
     "test": {
-      "Script": "./example.sh",
+      "Script": {
+          "Program": "./example.sh",
+          "AppendPayload": true
+      },
       "Secret": "THISISVERYSECRET",
       "SignatureHeader": "X-Gitea-Signature",
       "Tests": [
         {
-          "Command": "git",
-          "Arguments": [ "pull" ]
+          "Program": "echo",
+          "Arguments": [ "test" ]
         }
       ]
     }

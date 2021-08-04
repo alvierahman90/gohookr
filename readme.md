@@ -27,7 +27,13 @@ You should also specify a shared secret in the `Secret` key.
 You can disable signature verification altogether by setting environment variable
 `NO_SIGNATURE_VERIFICATION` to `true`.
 
-## Tests
+## Writing Commands
+
+gohookr doesn't care what the command is as long as the `Program` is executable.
+You can specify extra arguments with the `Arguments` field.
+You can ask it to put the payload as the last argument by setting `AppendPayload` to true.
+
+## Writing Tests
 
 gohookr can run test before running your script.
 Tests must be in the form of bash scripts.
@@ -35,13 +41,13 @@ A non-zero return code is considered a fail and gohookr will run no further test
 deploy.
 
 Tests are run in the order they're listed so any actions that need to be done before
-real tests are run can simply be put before the tests.
+tests are run can simply be put in this section before the tests.
 
 ## Example Config
 
 Required config keys are `ListenAddress` and `Services`.
 
-Requried keys per service are `Script`, `Secret`, `SignatureHeader`.
+Requried keys per service are `Script.Program`, `Secret`, `SignatureHeader`.
 
 An example config file can be found [here](./config.json) but also below:
 
@@ -50,13 +56,16 @@ An example config file can be found [here](./config.json) but also below:
   "ListenAddress": "127.0.0.1:8654",
   "Services": {
     "test": {
-      "Script": "./example.sh",
+      "Script": {
+          "Program": "./example.sh",
+          "AppendPayload": true
+      },
       "Secret": "THISISVERYSECRET",
       "SignatureHeader": "X-Gitea-Signature",
       "Tests": [
         {
-          "Command": "git",
-          "Arguments": [ "pull" ]
+          "Program": "echo",
+          "Arguments": [ "test" ]
         }
       ]
     }

@@ -24,6 +24,14 @@ func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/webhooks/{service}", webhookHandler)
 
+	if p, ok := os.LookupEnv("CONFIG"); ok {
+		config_filename = p
+	}
+
+	if p, ok := os.LookupEnv("NO_SIGNATURE_CHECK"); ok {
+		checkSignature = p != "true"
+	}
+
 	raw_config, err := ioutil.ReadFile(config_filename)
 	if err != nil {
 		panic(err.Error())
@@ -34,13 +42,6 @@ func main() {
 		panic(err.Error())
 	}
 
-	if p, ok := os.LookupEnv("CONFIG"); ok {
-		config_filename = p
-	}
-
-	if p, ok := os.LookupEnv("NO_SIGNATURE_CHECK"); ok {
-		checkSignature = p != "true"
-	}
 
 	log.Fatal(http.ListenAndServe(config.ListenAddress, r))
 }
@@ -73,15 +74,15 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Run tests, immediately stop if one fails
 	for _, test := range service.Tests {
-		if _, err := exec.Command(test.Command, test.Arguments...).Output(); err != nil {
+		if _, err := test.Execute(payload); err != nil {
 			writeResponse(w, 409,
-				fmt.Sprintf("409 Conflict: Test failed: %v", err.Error()),
+				fmt.Sprintf("Conflict: Test failed: %v", err.Error()),
 			)
 			return
 		}
 	}
 
-	if stdout, err := exec.Command(service.Script, payload).Output(); err != nil {
+	if stdout, err := service.Script.Execute(payload); err != nil {
 		writeResponse(w, 500, err.Error())
 		return
 	} else {
@@ -106,9 +107,12 @@ func (c Config) Validate() error {
 		return requiredFieldError{"ListenAddress", ""}
 	}
 
+	jsonbytes, _ := json.MarshalIndent(c, "", "  ")
+	fmt.Println(string(jsonbytes))
+
 	for serviceName, service := range c.Services {
-		if service.Script == "" {
-			return requiredFieldError{"Script", serviceName}
+		if service.Script.Program == "" {
+			return requiredFieldError{"Script.Program", serviceName}
 		}
 		if service.SignatureHeader == "" {
 			return requiredFieldError{"SignatureHeader", serviceName}
@@ -121,16 +125,27 @@ func (c Config) Validate() error {
 	return nil
 }
 
-type Test struct {
-	Command   string
-	Arguments []string
+func (c Command) Execute(payload string) ([]byte, error) {
+	arguments := make([]string, 0)
+	copy(c.Arguments, arguments)
+	if c.AppendPayload {
+		arguments = append(arguments, payload)
+	}
+
+	return exec.Command(c.Program, arguments...).Output()
+}
+
+type Command struct {
+	Program       string
+	Arguments     []string
+	AppendPayload bool
 }
 
 type Service struct {
-	Script          string
+	Script          Command
 	Secret          string
 	SignatureHeader string
-	Tests           []Test
+	Tests           []Command
 }
 
 type Config struct {
