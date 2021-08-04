@@ -8,7 +8,7 @@ install:
 	go build -o gohookr
 	cp gohookr /usr/local/bin/
 	cp gohookr.service /usr/lib/systemd/system/
-	cp config.json /etc/gohookr.json
+	cp -n config.json /etc/gohookr.json
 	systemctl daemon-reload
 	systemctl enable --now gohookr
 
