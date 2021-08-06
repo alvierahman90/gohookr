@@ -1,6 +1,9 @@
 package config
 
-import "os/exec"
+import (
+	"fmt"
+	"os/exec"
+)
 
 type Command struct {
 	Program       string
@@ -16,4 +19,12 @@ func (c Command) Execute(payload string) ([]byte, error) {
 	}
 
 	return exec.Command(c.Program, arguments...).Output()
+}
+
+func (c Command) String() string {
+	return fmt.Sprintf(
+		"<Command cmd=%v AppendPayload=%v>",
+		append([]string{c.Program}, c.Arguments...),
+		c.AppendPayload,
+	)
 }
