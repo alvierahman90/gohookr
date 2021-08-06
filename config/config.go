@@ -1,10 +1,6 @@
 package config
 
-import (
-	"encoding/json"
-	"fmt"
-)
-
+// The struct that represents the config.json file
 type Config struct {
 	ListenAddress string
 	Services      map[string]struct {
@@ -16,13 +12,11 @@ type Config struct {
 	}
 }
 
+// Check that all required fields are filled in
 func (c Config) Validate() error {
 	if c.ListenAddress == "" {
 		return requiredFieldError{"ListenAddress", ""}
 	}
-
-	jsonbytes, _ := json.MarshalIndent(c, "", "  ")
-	fmt.Println(string(jsonbytes))
 
 	for serviceName, service := range c.Services {
 		if service.Script.Program == "" {
