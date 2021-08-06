@@ -46,19 +46,24 @@ func main() {
 }
 
 func webhookHandler(w http.ResponseWriter, r *http.Request) {
+	// Check what service is specified in URL (/webhooks/{service}) and if it exists
+	serviceName := string(mux.Vars(r)["service"])
+	service, ok := c.Services[serviceName]
+	if !ok {
+		writeResponse(w, 404, "Service Not Found")
+		fmt.Printf("Service not found: %v\n", serviceName)
+		return
+	}
+	fmt.Printf("Got webhook for: %v\n", serviceName)
+
+	// Read payload or return 500 if that doesn't work out
 	payload := ""
 	if p, err := ioutil.ReadAll(r.Body); err != nil {
 		writeResponse(w, 500, "Internal Server Error: Could not read payload")
+		fmt.Println("Error: Could not read payload")
 		return
 	} else {
 		payload = string(p)
-	}
-
-	// check what service is specified in URL (/webhooks/{service}) and if it exists
-	service, ok := c.Services[string(mux.Vars(r)["service"])]
-	if !ok {
-		writeResponse(w, 404, "Service Not Found")
-		return
 	}
 
 	// Verify that signature provided matches signature calculated using secretsss
@@ -72,17 +77,16 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("calcuatedSignature = %v\n", calculatedSignature)
 	if signature != calculatedSignature && checkSignature {
 		writeResponse(w, 400, "Bad Request: Signatures do not match")
+		fmt.Println("Signatures do not match!")
 		return
 	}
 
-	// run test and script in parralel to prevent timing out
+	// Run tests and script as goroutine to prevent timing out
 	go func(){
 		// Run tests, immediately stop if one fails
 		for _, test := range service.Tests {
 			if _, err := test.Execute(payload); err != nil {
-				writeResponse(w, 409,
-					fmt.Sprintf("Conflict: Test failed: %v", err.Error()),
-				)
+				fmt.Printf("Test failed(%v) for service %v\n", test, serviceName)
 				return
 			}
 		}
