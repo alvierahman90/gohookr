@@ -64,12 +64,26 @@ An example config file can be found [here](./config.json) but also below:
           "AppendPayload": true
       },
       "Secret": "THISISVERYSECRET",
-      "SignatureHeader": "X-Hub-Signature",
-      "SignaturePrefix": "sha256=",
+      "SignatureHeader": "X-Gitea-Signature",
       "Tests": [
         {
           "Program": "echo",
           "Arguments": [ "test" ]
+        }
+      ]
+    },
+    "fails_tests": {
+      "Script": {
+          "Program": "./example.sh",
+          "AppendPayload": true
+      },
+      "Secret": "who_cares",
+      "SignatureHeader": "X-Hub-Signature-256",
+      "SignaturePrefix": "sha256=",
+      "Tests": [
+        {
+          "Program": "false",
+          "Arguments": []
         }
       ]
     }
