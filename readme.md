@@ -27,7 +27,9 @@ For GitHub it would be `sha256=`.
 
 ### Disable Signature Verification
 
-You can disable signature verification altogether by setting environment variable
+You can disable signature verification by setting `DisableSignatureVerification` for a service to `true`.
+
+You can disable signature verification for all services by setting environment variable
 `NO_SIGNATURE_VERIFICATION` to `true`.
 
 ## Writing Commands
@@ -63,8 +65,7 @@ An example config file can be found [here](./config.json) but also below:
           "Program": "./example.sh",
           "AppendPayload": true
       },
-      "Secret": "THISISVERYSECRET",
-      "SignatureHeader": "X-Gitea-Signature",
+      "DisableSignatureVerification": true,
       "Tests": [
         {
           "Program": "echo",

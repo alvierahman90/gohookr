@@ -4,11 +4,12 @@ package config
 type Config struct {
 	ListenAddress string
 	Services      map[string]struct {
-		Script          Command
-		Secret          string
-		SignaturePrefix string
-		SignatureHeader string
-		Tests           []Command
+		Script                       Command
+		Secret                       string
+		SignaturePrefix              string
+		SignatureHeader              string
+		DisableSignatureVerification bool
+		Tests                        []Command
 	}
 }
 
@@ -22,10 +23,10 @@ func (c Config) Validate() error {
 		if service.Script.Program == "" {
 			return requiredFieldError{"Script.Program", serviceName}
 		}
-		if service.SignatureHeader == "" {
+		if !service.DisableSignatureVerification && service.SignatureHeader == "" {
 			return requiredFieldError{"SignatureHeader", serviceName}
 		}
-		if service.Secret == "" {
+		if !service.DisableSignatureVerification && service.Secret == "" {
 			return requiredFieldError{"Secret", serviceName}
 		}
 	}

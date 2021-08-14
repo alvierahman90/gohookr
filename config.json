@@ -6,8 +6,7 @@
           "Program": "./example.sh",
           "AppendPayload": true
       },
-      "Secret": "THISISVERYSECRET",
-      "SignatureHeader": "X-Gitea-Signature",
+      "DisableSignatureVerification": true,
       "Tests": [
         {
           "Program": "echo",
