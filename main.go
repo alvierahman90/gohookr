@@ -75,8 +75,7 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 	)
 	fmt.Printf("signature          = %v\n", signature)
 	fmt.Printf("calcuatedSignature = %v\n", calculatedSignature)
-	if service.DisableSignatureVerification ||
-		(signature != calculatedSignature && checkSignature) {
+	if checkSignature && !service.DisableSignatureVerification && signature != calculatedSignature {
 		writeResponse(w, 400, "Bad Request: Signatures do not match")
 		fmt.Println("Signatures do not match!")
 		return
