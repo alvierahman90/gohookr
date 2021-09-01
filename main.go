@@ -37,7 +37,10 @@ func main() {
 		panic(err.Error())
 	}
 
-	json.Unmarshal(raw_config, &c)
+	if err := json.Unmarshal(raw_config, &c); err != nil {
+		panic(err.Error())
+	}
+
 	if err := c.Validate(); err != nil {
 		panic(err.Error())
 	}
