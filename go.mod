@@ -1,4 +1,4 @@
-module git.alra.uk/alvierahman90/gohookr
+module git.alv.cx/alvierahman90/gohookr
 
 go 1.16
 

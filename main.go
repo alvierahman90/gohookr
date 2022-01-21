@@ -12,7 +12,7 @@ import (
 	"net/http"
 	"os"
 
-	"git.alra.uk/alvierahman90/gohookr/config"
+	"git.alv.cx/alvierahman90/gohookr/config"
 	"github.com/gorilla/mux"
 )
 
