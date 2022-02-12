@@ -18,9 +18,10 @@ import (
 
 var config_filename = "/etc/gohookr.json"
 var checkSignature = true
-var c config.Config
 
 func main() {
+	var c config.Config
+
 	r := mux.NewRouter()
 	r.HandleFunc("/webhooks/{service}", webhookHandler)
 
@@ -32,23 +33,47 @@ func main() {
 		checkSignature = p != "true"
 	}
 
-	raw_config, err := ioutil.ReadFile(config_filename)
+	c, err := loadConfig(config_filename)
 	if err != nil {
 		panic(err.Error())
 	}
+	fmt.Printf("CONFIG OK: %s\n", config_filename)
+	fmt.Printf("LISTENING AT: %s\n", c.ListenAddress)
 
-	if err := json.Unmarshal(raw_config, &c); err != nil {
-		panic(err.Error())
-	}
-
-	if err := c.Validate(); err != nil {
-		panic(err.Error())
+	for _, v := range os.Args {
+		if v == "checkConfig" {
+			return
+		}
 	}
 
 	log.Fatal(http.ListenAndServe(c.ListenAddress, r))
 }
 
+func loadConfig(config_filename string) (config.Config, error) {
+	var c config.Config
+
+	raw_config, err := ioutil.ReadFile(config_filename)
+	if err != nil {
+		return config.Config{}, err
+	}
+
+	if err := json.Unmarshal(raw_config, &c); err != nil {
+		return config.Config{}, err
+	}
+
+	if err := c.Validate(); err != nil {
+		return config.Config{}, err
+	}
+
+	return c, nil
+
+}
+
 func webhookHandler(w http.ResponseWriter, r *http.Request) {
+	c, err := loadConfig(config_filename)
+	if err != nil {
+		writeResponse(w, 500, "Unable to read config file")
+	}
 	// Check what service is specified in URL (/webhooks/{service}) and if it exists
 	serviceName := string(mux.Vars(r)["service"])
 	service, ok := c.Services[serviceName]
@@ -85,7 +110,7 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Run tests and script as goroutine to prevent timing out
-	go func(){
+	go func() {
 		// Run tests, immediately stop if one fails
 		for _, test := range service.Tests {
 			if _, err := test.Execute(payload); err != nil {

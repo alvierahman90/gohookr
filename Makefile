@@ -3,14 +3,16 @@ all: install
 clean:
 	rm -rf gohookr
 
-install:
-	go mod tidy
-	go build -o gohookr
+install: build
 	cp gohookr /usr/local/bin/
 	cp gohookr.service /usr/lib/systemd/system/
 	cp -n config.json /etc/gohookr.json
 	systemctl daemon-reload
 	systemctl enable --now gohookr
+
+build:
+	go mod tidy
+	go build -o gohookr
 
 uninstall:
 	systemctl disable --now gohookr

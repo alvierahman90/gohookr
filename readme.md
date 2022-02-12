@@ -15,10 +15,17 @@ make
 Default config path is `/etc/gohookr.json`.
 It can be overriden by setting environment variable `CONFIG`.
 
+The config file will be re-read every request so service configs can be changed without restarting
+the service (unless you want to change the listening port).
+
 Check below for an example configuration, which should tell you most of the things you need to know
 to configure gohookr.
 
-Currently gohookr must be restarted after config changes.
+You can test your config file by running
+
+```
+gohookr checkConfig
+```
 
 ### Signature Verification
 
@@ -32,7 +39,8 @@ For GitHub it would be `sha256=`.
 
 #### Disable Signature Verification
 
-You can disable signature verification by setting `DisableSignatureVerification` for a service to `true`.
+You can disable signature verification by setting `DisableSignatureVerification` for a service to
+`true`.
 
 You can disable signature verification for all services by setting environment variable
 `NO_SIGNATURE_VERIFICATION` to `true`.
