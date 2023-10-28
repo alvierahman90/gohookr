@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -32,7 +31,7 @@ func main() {
 		checkSignature = p != "true"
 	}
 
-	raw_config, err := ioutil.ReadFile(config_filename)
+	raw_config, err := os.ReadFile(config_filename)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -61,7 +60,7 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Read payload or return 500 if that doesn't work out
 	payload := ""
-	if p, err := ioutil.ReadAll(r.Body); err != nil {
+	if p, err := io.ReadAll(r.Body); err != nil {
 		writeResponse(w, 500, "Internal Server Error: Could not read payload")
 		fmt.Println("Error: Could not read payload")
 		return
