@@ -69,7 +69,8 @@ An example config file can be found [here](./config.json) but also below:
     "test": {
       "Script": {
           "Program": "./example.sh",
-          "AppendPayload": true
+          "AppendPayload": true,
+          "AppendHeaders": true
       },
       "DisableSignatureVerification": true,
       "Tests": [
