@@ -4,7 +4,8 @@
     "test": {
       "Script": {
           "Program": "./example.sh",
-          "AppendPayload": true
+          "AppendPayload": true,
+          "AppendHeaders": true
       },
       "DisableSignatureVerification": true,
       "Tests": [

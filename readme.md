@@ -41,7 +41,8 @@ You can disable signature verification for all services by setting environment v
 
 gohookr doesn't care what the command is as long as the `Program` is executable.
 You can specify extra arguments with the `Arguments` field.
-You can ask it to put the payload as the last argument by setting `AppendPayload` to true.
+You can ask it to put the payload as the last (or second to last if `AppendHeaders` is set) argument by setting `AppendPayload` to true.
+You can ask it to put the request headers as the last argument by setting `AppendHeaders` to true.
 
 ### Writing Tests
 

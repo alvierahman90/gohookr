@@ -84,15 +84,15 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Run tests and script as goroutine to prevent timing out
-	go func(){
+	go func() {
 		// Run tests, immediately stop if one fails
 		for _, test := range service.Tests {
-			if _, err := test.Execute(payload); err != nil {
+			if _, err := test.Execute(payload, r.Header); err != nil {
 				fmt.Printf("Test failed(%v) for service %v\n", test, serviceName)
 				return
 			}
 		}
-		stdout, err := service.Script.Execute(payload)
+		stdout, err := service.Script.Execute(payload, r.Header)
 		fmt.Println(string(stdout))
 		if err != nil {
 			fmt.Println(err.Error())
