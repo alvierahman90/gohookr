@@ -1,0 +1,13 @@
+listenaddress: 127.0.0.1:8654
+services:
+  test:
+    script:
+      program: "echo"
+      arguments: 
+        - test
+    tests:
+      - program: ./example.sh
+        appendpayload: true
+    disablesignatureverification: false
+    signatureheader: test
+    secret: thisisasecret

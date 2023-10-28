@@ -1,5 +1,12 @@
 package config
 
+import (
+	"encoding/json"
+	"io/ioutil"
+
+	"gopkg.in/yaml.v3"
+)
+
 // The struct that represents the config.json file
 type Config struct {
 	ListenAddress string
@@ -32,4 +39,24 @@ func (c Config) Validate() error {
 	}
 
 	return nil
+}
+
+func (c *Config) Load(config_filename string) error {
+
+	raw_config, err := ioutil.ReadFile(config_filename)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(raw_config, &c)
+	if err == nil {
+		return c.Validate()
+	}
+
+	err = yaml.Unmarshal(raw_config, &c)
+	if err == nil {
+		return c.Validate()
+	}
+
+	return err
 }

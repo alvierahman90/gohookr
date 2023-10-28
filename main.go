@@ -4,7 +4,6 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
-	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -33,7 +32,7 @@ func main() {
 		checkSignature = p != "true"
 	}
 
-	c, err := loadConfig(config_filename)
+	var err = c.Load(config_filename)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -49,28 +48,9 @@ func main() {
 	log.Fatal(http.ListenAndServe(c.ListenAddress, r))
 }
 
-func loadConfig(config_filename string) (config.Config, error) {
-	var c config.Config
-
-	raw_config, err := ioutil.ReadFile(config_filename)
-	if err != nil {
-		return config.Config{}, err
-	}
-
-	if err := json.Unmarshal(raw_config, &c); err != nil {
-		return config.Config{}, err
-	}
-
-	if err := c.Validate(); err != nil {
-		return config.Config{}, err
-	}
-
-	return c, nil
-
-}
-
 func webhookHandler(w http.ResponseWriter, r *http.Request) {
-	c, err := loadConfig(config_filename)
+	var c config.Config
+	var err = c.Load(config_filename)
 	if err != nil {
 		writeResponse(w, 500, "Unable to read config file")
 	}
