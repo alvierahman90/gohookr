@@ -15,8 +15,8 @@ type Command struct {
 }
 
 func (c Command) Execute(payload string, header http.Header) ([]byte, error) {
-	arguments := make([]string, 0)
-	copy(c.Arguments, arguments)
+	arguments := make([]string, len(c.Arguments))
+	copy(arguments, c.Arguments)
 
 	if c.AppendPayload {
 		arguments = append(arguments, payload)
