@@ -29,7 +29,7 @@ func (c Command) Execute(payload string, header http.Header) ([]byte, error) {
 		arguments = append(arguments, header_builder.String())
 	}
 
-	return exec.Command(c.Program, arguments...).Output()
+	return exec.Command(c.Program, arguments...).CombinedOutput()
 }
 
 func (c Command) String() string {
